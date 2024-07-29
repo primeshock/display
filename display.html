@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./css/style.css">
+  <title>Dashboard</title> 
+</head>
+<body>
+<div class="full">در حال اتصال...</div>
+<div hidden>
+<h4 style="text-align:center;margin:5% 0;">پنل پایش و کنترل پنجره هوشمند</h4>
+<div class="item">
+  <h3>دما</h3>
+  <svg class="disp" viewBox="0 0 100 100" data-value="0 %" id="data_temp">
+    <circle r="45" cx="50" cy="50" />
+    <path class="meter" d="M5,50a45,45 0 1,0 90,0a45,45 0 1,0 -90,0" stroke-linecap="round" stroke-linejoin="round" />
+    <text x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="20">NAN</text>
+  </svg>
+</div>
+<div class="item">
+  <h3>کربن مونوکسید</h3>
+  <svg class="disp" viewBox="0 0 100 100" data-value="0 %" id="data_carbon">
+    <circle r="45" cx="50" cy="50" />
+    <path class="meter" d="M5,50a45,45 0 1,0 90,0a45,45 0 1,0 -90,0" stroke-linecap="round" stroke-linejoin="round" />
+    <text x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="20">NAN</text>
+  </svg>
+</div>
+<div class="item">
+  <h3>شب/روز</h3>
+  <svg viewBox="0 0 100 100" id="data_light">
+    <circle r="45" cx="50" cy="50" fill="#424242" />
+    <image x="20" y="20" height="60" width="60"></image>
+  </svg>
+</div>
+<div class="item">
+  <h3>وضعیت گاز</h3>
+  <svg viewBox="0 0 100 100" id="data_safety">
+    <circle r="45" cx="50" cy="50" fill="#424242" />
+    <text x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="30"></text>
+  </svg>
+</div>
+<div class="item">
+  <h3>وضعیت باران</h3>
+  <svg viewBox="0 0 100 100" id="data_rain">
+    <circle r="45" cx="50" cy="50" fill="#424242" />
+    <text x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="30"></text>
+  </svg>
+</div>
+<div class="item2">
+  <h4>دستی کردن پنجره</h4>
+  <button onclick="updateBtn(this,'c')">خاموش</button>
+</div>
+<div class="item2">
+  <h4>روشن کردن چراغ</h4>
+  <button onclick="updateBtn(this,'d')">خاموش</button>
+</div>
+<div class="item2">
+  <h4>روشن کردن کولر</h4>
+  <button onclick="updateBtn(this,'a')">خاموش</button>
+</div>
+<div class="item2">
+  <h4>روشن کردن هیتر</h4>
+  <button onclick="updateBtn(this,'b')">خاموش</button>
+</div>
+</div>
+
+</body>
+<script>
+
+const urlParams = new URLSearchParams(window.location.search);
+const user_name = urlParams.get("name");
+const user_key = urlParams.get("key");
+
+//--default data--//
+data = {
+  temp: 0,
+  carbon: 0,
+  light: 0,
+  rain: 0,
+  a: 0,
+  b: 0,
+  c: 0,
+  d: 0
+};
+
+const fetchData = async (name) => {
+  var data = await fetch(`https://io.adafruit.com/api/v2/${user_name}/feeds/${name}`);
+  var data = await data.json();
+  return data.last_value;
+}
+
+const setData = (feedKey, value) => {
+  const url = `https://io.adafruit.com/api/v2/${user_name}/feeds/${feedKey}/data`;
+  const formData = new FormData();
+  formData.append('value', value);
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', url);
+  xhr.setRequestHeader('X-AIO-Key', user_key);
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      console.log('Data sent successfully:', xhr.responseText);
+    } else {
+      console.log('Error sending data:', xhr.responseText);
+    }
+  };
+  xhr.onerror = function () {
+    console.error('Request failed');
+  };
+  xhr.send(formData);
+}
+
+//--update from the Arduino--//
+const getData = async () => {
+  data.temp = await fetchData("temp");
+  data.carbon = await fetchData("gas");
+  data.light = await fetchData("phsensor");
+  data.rain = await fetchData("rainval");
+  return data;
+}
+
+//--css window resize--//
+const resize = () => {
+  var root = document.querySelector(":root");
+  var width = window.innerWidth;
+  var height = window.innerHeight;
+  root.style.setProperty("--vw",width+"px");
+  root.style.setProperty("--vw2",(width<height?width:width/2)+"px");
+  root.style.setProperty("--vh",height+"px");
+  root.style.setProperty("--vmin",(width<height?width:height)+"px");
+  root.style.setProperty("--vmax",(width>height?width:height)+"px");
+};
+window.addEventListener("resize",resize);
+resize();
+
+//--updating meters--//
+const updateMeters = () => {
+  const meters = document.querySelectorAll('svg[data-value] .meter');
+  meters.forEach((path) => {
+    const length = path.getTotalLength();
+    path.style.strokeDashoffset = length;
+    path.style.strokeDasharray = length;
+    const data = path.parentNode.getAttribute('data-value').split(" ");
+    const value = data[0];
+    const to = length*((100-value)/100);
+    path.getBoundingClientRect();
+    path.style.strokeDashoffset = Math.max(0,to);
+    path.nextElementSibling.textContent = value+data[1];
+  });
+}
+
+//--updating buttons--//
+const updateBtn = (element,item) => {
+  data[item] = !data[item];
+  switch (item) {
+    case "a":
+      setData("ctrl-fan",data[item]);
+      break;
+    case "b":
+      setData("hiter",data[item]);
+      break;
+    case "c":
+      setData("servo-auto-key",data[item]);
+      break;
+    case "d":
+      setData("ctrl-light",data[item]);
+      break;
+  }
+  data[item]?element.classList.add("on"):element.classList.remove("on")
+  element.innerHTML = data[item]?"روشن":"خاموش";
+}
+
+const init = async () => {
+  data = await getData();
+  //--temp--//
+  data_temp.setAttribute("data-value",data.temp+" °");
+  //--carbon--//
+  data_carbon.setAttribute("data-value",data.carbon+" %");
+  //--light--//
+  light = data.light>150?"./css/img/sun.webp":"./css/img/moon.webp";
+  if (document.querySelector("#data_light image").getAttribute("href")!=light) {
+    document.querySelector("#data_light image").setAttribute("href",light);
+  }
+  //--safety--//
+  document.querySelector("#data_safety text").innerHTML = data.carbon>45?"🔥":"⚪";
+  //--rain--//
+  document.querySelector("#data_rain text").innerHTML = data.rain?"🌞":"🌧️";
+  updateMeters();
+  document.body.querySelectorAll("div")[0].remove();
+  document.body.querySelectorAll("div")[0].removeAttribute("hidden");
+  update();
+}
+
+//--updating values--//
+let t = 0;
+const update = async () => {
+  if (t%100==0) {
+    data = await getData();
+    //--temp--//
+    data_temp.setAttribute("data-value",data.temp+" °");
+    //--carbon--//
+    data_carbon.setAttribute("data-value",data.carbon+" %");
+    //--light--//
+    light = data.light>150?"./css/img/sun.webp":"./css/img/moon.webp";
+    if (document.querySelector("#data_light image").getAttribute("href")!=light) {
+      document.querySelector("#data_light image").setAttribute("href",light);
+    }
+    //--safety--//
+    document.querySelector("#data_safety text").innerHTML = data.carbon>45?"🔥":"⚪";
+    //--rain--//
+    document.querySelector("#data_rain text").innerHTML = data.rain?"🌞":"🌧️";
+    updateMeters();
+  }
+  requestAnimationFrame(update);
+  t++;
+}
+
+init();
+</script>
+</html>

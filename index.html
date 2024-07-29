@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./css/login.css">
+  <title>Login</title> 
+</head>
+<body>
+<div class="container">
+  <div class="forms">
+    <div class="form login">
+      <div class="title">صفحه ورود به سیستم</div>
+      <form action="#" method="POST" autocomplete="off">
+        <div class="input-field">
+          <input name="uname" type="text" placeholder="نام کاربری" required>
+        </div>
+        <div class="input-field">
+          <input name="pwd" type="password" class="password" placeholder="رمز عبور" required>
+        </div>
+        <div class="input-field button">
+          <input type="submit" name="submit" value="ورود به سیستم">
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+<script>
+
+//--css window resize--//
+const resize = () => {
+  var root = document.querySelector(":root");
+  var width = window.innerWidth;
+  var height = window.innerHeight;
+  root.style.setProperty("--vw",width+"px");
+  root.style.setProperty("--vh",height+"px");
+  root.style.setProperty("--vmin",(width<height?width:height)+"px");
+  root.style.setProperty("--vmax",(width>height?width:height)+"px");
+};
+window.addEventListener("resize",resize);
+resize();
+
+const form = document.querySelector("form");
+form.addEventListener("submit",(event)=>{
+  event.preventDefault();
+  const user = document.querySelector('input[name="uname"]').value;
+  const pwd = document.querySelector('input[name="pwd"]').value;
+  const url = `display.html?name=${user}&key=${pwd}`;
+  window.location.href = url;
+});
+</script>
+
+</script>
+</html>

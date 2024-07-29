@@ -1,0 +1,112 @@
+@font-face {
+  font-family: "roboto";
+  src: url("./fonts/roboto/Roboto-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "estedad";
+  src: url("./fonts/Estedad[KSHD,wght].woff2");
+}
+* {
+  padding: 0;
+  margin: 0;
+  text-align: auto !important;
+  unicode-bidi: plaintext !important;
+  font-family: "roboto","estedad";
+}
+body {
+  width: 100%;
+  height: 100%;
+  background: #212121;
+  overscroll-behavior: none;
+  overflow-y: auto;
+  -webkit-tap-highlight-color: transparent;
+  color: #fff;
+  user-select: none;
+}
+button:focus {
+  outline:0;
+}
+::-webkit-scrollbar {
+  display: none;
+}
+.item {
+  display: inline-block;
+  width: calc(var(--vw2) - (var(--vmin)/100*16));
+  height: calc(var(--vmin)/2 - (var(--vmin)/100*16));
+  padding: calc(var(--vmin)/100*4);
+  margin: calc(var(--vmin)/100*4);
+  border-radius: calc(var(--vmin)/100*5);
+  float: left;
+  box-shadow: 0 0 0 calc(var(--vmin)/200) #424242,0 5px 10px #000;
+}
+.item h3 {
+  height: 20%;
+  margin: 0 0;
+}
+.item svg{
+  height: 80%;
+}
+.item2 {
+  display: inline-block;
+  width: calc(var(--vw2)/2 - (var(--vmin)/100*16));
+  height: calc(var(--vmin)/2 - (var(--vmin)/100*16));
+  padding: calc(var(--vmin)/100*4);
+  margin: calc(var(--vmin)/100*4);
+  border-radius: calc(var(--vmin)/100*5);
+  float: left;
+  box-shadow: 0 0 0 calc(var(--vmin)/200) #424242,0 5px 10px #000;
+}
+.item2 h4 {
+  font-size: 4vmin;
+  height: 30%;
+  text-align: center;
+}
+.item2 button {
+  color: #fff;
+  width: 100%;
+  height: 70%;
+  border: none;
+  background: #424242;
+  box-shadow: 0 0 0 calc(var(--vmin)/200) #616161,0 5px 10px #000;
+  transition: all 0.25s ease;
+  border-radius: calc(var(--vmin)/100*5);
+}
+.item2 button:active {
+  transform: scale(0.875);
+  box-shadow: 0 0 0 calc(var(--vmin)/200) #616161,0 0 0 #000;
+}
+.item2 button.on {
+  background: #388E3C;
+  box-shadow: 0 0 0 calc(var(--vmin)/200) #4CAF50,0 5px 10px #000;
+}
+svg {
+  width: auto;
+  height: 100%;
+}
+.disp circle {
+  stroke: #424242;
+  stroke-width: 5px;
+  stroke-dasharray: 0;
+  fill: none;
+}
+.disp .meter {
+  stroke-width: 5px;
+  stroke: #eee;
+  fill: none;
+  transition: stroke-dashoffset .5s cubic-bezier(0.43, 0.41, 0.22, 0.91);
+  transform-origin: center center;
+  transform: rotate(-90deg) scaleX(-1);
+}
+.disp text {
+  fill: #fff;
+  font-weight: bold;
+}
+
+.full {
+  width: var(--vw);
+  height: var(--vh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 150%;
+}
